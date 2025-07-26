@@ -7,7 +7,8 @@ sealed class NetworkResult<T> {
         val code: Int? = null,
         val exception: Throwable? = null
     ) : NetworkResult<T>()
-    data class Loading<T>(val isLoading: Boolean) : NetworkResult<T>()
+
+    class Loading<T> : NetworkResult<T>()
 }
 
 inline fun <T> NetworkResult<T>.onSuccess(action: (value: T) -> Unit): NetworkResult<T> {
