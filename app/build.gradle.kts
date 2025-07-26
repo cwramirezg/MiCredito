@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.jetbrains.kotlin.compose)
-    alias(libs.plugins.google.gms.services)
+    //alias(libs.plugins.google.gms.services)
 }
 
 android {
@@ -64,6 +64,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.androidx.hilt.compiler)
+    implementation(libs.androidx.hilt.work)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -71,15 +72,17 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    implementation(platform(libs.google.firebase.bom))
-    implementation(libs.google.firebase.analytics.ktx)
-    implementation(libs.google.firebase.firestore.ktx)
+    //implementation(platform(libs.google.firebase.bom))
+    //implementation(libs.google.firebase.analytics.ktx)
+    //implementation(libs.google.firebase.firestore.ktx)
 
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
 
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.androidx.work)
 
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)

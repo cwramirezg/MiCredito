@@ -6,5 +6,5 @@ plugins {
     alias(libs.plugins.google.devtools.ksp) apply false
     alias(libs.plugins.jetbrains.kotlin.serialization) apply false
     alias(libs.plugins.jetbrains.kotlin.compose) apply false
-    alias(libs.plugins.google.gms.services) apply false
+    //alias(libs.plugins.google.gms.services) apply false
 }
