@@ -1,5 +1,6 @@
 package com.github.cwramirezg.micredito.home.di
 
+import com.github.cwramirezg.micredito.BuildConfig
 import com.github.cwramirezg.micredito.core.data.network.ApiInterceptor
 import com.github.cwramirezg.micredito.home.data.remote.CreditoApiService
 import dagger.Module
@@ -21,14 +22,25 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+        }
+    }
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
+        loggingInterceptor: HttpLoggingInterceptor,
         apiInterceptor: ApiInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(apiInterceptor)
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
+            .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
