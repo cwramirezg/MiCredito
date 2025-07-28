@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
@@ -63,7 +64,7 @@ class CreditoViewModel @Inject constructor(
     }
 
     private fun inicializarDatos() {
-        cargarDatosCredito("user_123") // En producción: obtener del PreferencesManager
+        cargarDatosCredito("c123")
     }
 
     private fun configurarSimulacionReactiva() {
@@ -86,10 +87,12 @@ class CreditoViewModel @Inject constructor(
     }
 
     fun cargarDatosCredito(clienteId: String) {
+        Timber.d("Iniciando carga de datos para: $clienteId")
         launchSafe {
             _creditoUiState.value = CreditoUiState.Loading
 
             obtenerLineaCreditoUseCase(clienteId).collect { result ->
+                Timber.d("Resultado recibido: $result")
                 when (result) {
                     is NetworkResult.Success -> {
                         val lineaCredito = result.data
@@ -113,9 +116,12 @@ class CreditoViewModel @Inject constructor(
 
                         // Configurar valores iniciales del slider
                         _montoSeleccionado.value = lineaCredito.montoMinimo
+
+                        Timber.d("Estado actualizado a Success")
                     }
 
                     is NetworkResult.Error -> {
+                        Timber.e("Error: ${result.message}")
                         _creditoUiState.value = CreditoUiState.Error(
                             message = result.message,
                             canRetry = true
@@ -123,7 +129,10 @@ class CreditoViewModel @Inject constructor(
                     }
 
                     is NetworkResult.Loading -> {
-                        _creditoUiState.value = CreditoUiState.Loading
+                        if (_creditoUiState.value !is CreditoUiState.Success) {
+                            // Solo mostrar loading si no tenemos datos exitosos
+                            _creditoUiState.value = CreditoUiState.Loading
+                        }
                     }
                 }
             }

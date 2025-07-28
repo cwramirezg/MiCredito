@@ -34,6 +34,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun getStartDestination(): Any {
-        return NavigationDestination.Splash
+        return NavigationDestination.CreditoHome
     }
 }

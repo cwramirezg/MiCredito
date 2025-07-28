@@ -16,8 +16,10 @@ import com.github.cwramirezg.micredito.home.domain.entities.SolicitudCredito
 import com.github.cwramirezg.micredito.home.domain.entities.SolicitudCreditoRequest
 import com.github.cwramirezg.micredito.home.domain.repository.CreditoRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 class CreditoRepositoryImpl @Inject constructor(
@@ -25,50 +27,48 @@ class CreditoRepositoryImpl @Inject constructor(
     private val localDataSource: CreditoLocalDataSource
 ) : CreditoRepository {
 
-    override suspend fun obtenerLineaCredito(clienteId: String): Flow<NetworkResult<LineaCredito>> =
+    override fun obtenerLineaCredito(clienteId: String): Flow<NetworkResult<LineaCredito>> =
         flow {
+            Timber.d("=== Iniciando obtención de línea de crédito ===")
             emit(NetworkResult.Loading())
-
-            // 1. Intentar obtener de cache local primero
-            localDataSource.obtenerLineaCreditoLocal(clienteId).collect { localResult ->
-                if (localResult is NetworkResult.Success && localResult.data != null) {
-                    emit(NetworkResult.Success(LineaCreditoMapper.fromEntityToDomain(localResult.data)))
+            try {
+                val localData = localDataSource.obtenerLineaCreditoLocal(clienteId)
+                if (localData is NetworkResult.Success && localData.data != null) {
+                    Timber.d("Datos encontrados en cache local")
+                    emit(NetworkResult.Success(LineaCreditoMapper.fromEntityToDomain(localData.data)))
                 }
-            }
 
-            // 2. Obtener de red y actualizar cache
-            remoteDataSource.obtenerLineaCredito(clienteId).collect { remoteResult ->
-                when (remoteResult) {
+                // 2. Siempre intentar obtener datos frescos de la red
+                Timber.d("Obteniendo datos de la red para clienteId: $clienteId")
+                val remoteData = remoteDataSource.obtenerLineaCredito(clienteId)
+
+                when (remoteData) {
                     is NetworkResult.Success -> {
-                        val lineaCredito = LineaCreditoMapper.fromDtoToDomain(remoteResult.data)
+                        Timber.d("Datos obtenidos exitosamente de la red")
+                        val lineaCredito = LineaCreditoMapper.fromDtoToDomain(remoteData.data)
 
                         // Guardar en cache local
-                        val lineaCreditoEntity =
-                            LineaCreditoMapper.fromDtoToEntity(remoteResult.data)
+                        val lineaCreditoEntity = LineaCreditoMapper.fromDtoToEntity(remoteData.data)
                         localDataSource.guardarLineaCredito(lineaCreditoEntity)
 
                         emit(NetworkResult.Success(lineaCredito))
                     }
 
                     is NetworkResult.Error -> {
-                        // Si falla la red, intentar usar cache local
-                        localDataSource.obtenerLineaCreditoLocal(clienteId).collect { cacheResult ->
-                            if (cacheResult is NetworkResult.Success && cacheResult.data != null) {
-                                emit(
-                                    NetworkResult.Success(
-                                        LineaCreditoMapper.fromEntityToDomain(
-                                            cacheResult.data
-                                        )
-                                    )
-                                )
-                            } else {
-                                emit(NetworkResult.Error("No hay conexión y no se encontraron datos locales"))
-                            }
+                        Timber.d("Error de red: ${remoteData.message}")
+                        // Si ya emitimos datos del cache, no emitir error
+                        if (localData !is NetworkResult.Success) {
+                            emit(NetworkResult.Error("No hay conexión y no se encontraron datos locales"))
                         }
                     }
 
-                    is NetworkResult.Loading -> emit(NetworkResult.Loading())
+                    is NetworkResult.Loading -> {
+                        // No emitir loading adicional
+                    }
                 }
+            } catch (e: Exception) {
+                Timber.e("Exception en obtenerLineaCredito: ${e.message}")
+                emit(NetworkResult.Error("Error inesperado: ${e.message}"))
             }
         }
 

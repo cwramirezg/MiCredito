@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,11 +35,10 @@ import com.github.cwramirezg.micredito.home.presentation.ui.components.ResumenCr
 import com.github.cwramirezg.micredito.home.presentation.ui.components.SimuladorCard
 import com.github.cwramirezg.micredito.home.presentation.viewmodel.CreditoViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreditoHomeScreen(
     viewModel: CreditoViewModel = hiltViewModel(),
-    onNavigateToHistory: () -> Unit = {}
+    onNavigateToSimulacion: () -> Unit = {}
 ) {
     val creditoUiState by viewModel.creditoUiState.collectAsStateWithLifecycle()
     val simulacionUiState by viewModel.simulacionUiState.collectAsStateWithLifecycle()
@@ -83,7 +81,7 @@ fun CreditoHomeScreen(
             onMontoChange = viewModel::actualizarMonto,
             onPlazoChange = viewModel::actualizarPlazo,
             onSolicitarCredito = viewModel::solicitarCredito,
-            onNavigateToHistory = onNavigateToHistory
+            onNavigateToSimulacion = onNavigateToSimulacion
         )
     }
 }
@@ -98,7 +96,7 @@ private fun CreditoContent(
     onMontoChange: (Double) -> Unit,
     onPlazoChange: (Int) -> Unit,
     onSolicitarCredito: () -> Unit,
-    onNavigateToHistory: () -> Unit
+    onNavigateToSimulacion: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -110,7 +108,7 @@ private fun CreditoContent(
         // Header con datos del cliente
         ClienteCard(
             cliente = creditoState.cliente,
-            onHistoryClick = onNavigateToHistory
+            onHistoryClick = onNavigateToSimulacion
         )
 
         // Card de línea de crédito

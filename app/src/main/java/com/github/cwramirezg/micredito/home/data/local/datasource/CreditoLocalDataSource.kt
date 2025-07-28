@@ -7,7 +7,7 @@ import com.github.cwramirezg.micredito.home.data.local.entities.LineaCreditoEnti
 import com.github.cwramirezg.micredito.home.data.local.entities.SimulacionEntity
 import com.github.cwramirezg.micredito.home.data.local.entities.SolicitudPendienteEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import timber.log.Timber
 import javax.inject.Inject
 
 class CreditoLocalDataSource @Inject constructor(
@@ -15,14 +15,20 @@ class CreditoLocalDataSource @Inject constructor(
     private val simulacionDao: SimulacionDao
 ) {
 
-    suspend fun obtenerLineaCreditoLocal(clienteId: String): Flow<NetworkResult<LineaCreditoEntity?>> =
-        flow {
-            try {
-                val lineaCredito = creditoDao.obtenerLineaCreditoActiva(clienteId)
-                emit(NetworkResult.Success(lineaCredito))
-            } catch (e: Exception) {
-                emit(NetworkResult.Error("Error al acceder a datos locales: ${e.message}"))
+    suspend fun obtenerLineaCreditoLocal(clienteId: String): NetworkResult<LineaCreditoEntity> =
+        try {
+            Timber.d("Obteniendo datos locales para clienteId: $clienteId")
+            val entity = creditoDao.obtenerLineaCreditoActiva(clienteId)
+            if (entity != null) {
+                Timber.d("Datos encontrados en cache local")
+                NetworkResult.Success(entity)
+            } else {
+                Timber.d("No hay datos en cache local")
+                NetworkResult.Error("No hay datos locales")
             }
+        } catch (e: Exception) {
+            Timber.e("Error en cache local: ${e.message}")
+            NetworkResult.Error("Error en cache local: ${e.message}")
         }
 
     suspend fun guardarLineaCredito(lineaCredito: LineaCreditoEntity) {

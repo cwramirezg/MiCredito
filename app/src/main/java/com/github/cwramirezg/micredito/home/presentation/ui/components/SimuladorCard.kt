@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.cwramirezg.micredito.home.domain.entities.EstadoLineaCredito
 import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 
 @Composable
@@ -57,4 +59,29 @@ private fun generatePlazos(minimo: Int, maximo: Int): List<Int> {
         maximo <= 24 -> listOf(6, 12, 18, 24).filter { it in minimo..maximo }
         else -> listOf(6, 12, 18, 24, 36).filter { it in minimo..maximo }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SimuladorCardPreview() {
+    val lineaCredito = LineaCredito(
+        id = "1",
+        createdAt = 24234234,
+        updatedAt = 24234234,
+        clienteId = "c123",
+        montoMaximo = 100000.0,
+        montoMinimo = 10000.0,
+        tasaInteres = 0.0,
+        plazoMinimo = 24,
+        plazoMaximo = 60,
+        estado = EstadoLineaCredito.ACTIVA,
+        fechaVencimiento = 23123123
+    )
+    SimuladorCard(
+        lineaCredito = lineaCredito,
+        montoSeleccionado = 50000.0,
+        plazoSeleccionado = 12,
+        onMontoChange = {},
+        onPlazoChange = {}
+    )
 }

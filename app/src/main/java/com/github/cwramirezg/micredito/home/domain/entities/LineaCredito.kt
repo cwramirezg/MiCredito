@@ -1,6 +1,7 @@
 package com.github.cwramirezg.micredito.home.domain.entities
 
 import com.github.cwramirezg.micredito.core.domain.models.BaseEntity
+import timber.log.Timber
 
 data class LineaCredito(
     override val id: String,
@@ -16,8 +17,10 @@ data class LineaCredito(
     val fechaVencimiento: Long
 ) : BaseEntity() {
 
-    fun esValida(): Boolean = estado == EstadoLineaCredito.ACTIVA &&
-            System.currentTimeMillis() < fechaVencimiento
+    fun esValida(): Boolean {
+        Timber.d("Fecha de vencimiento: ${fechaVencimiento}, Fecha actual: ${System.currentTimeMillis()}")
+        return estado == EstadoLineaCredito.ACTIVA && System.currentTimeMillis() < fechaVencimiento
+    }
 
     fun montoDisponible(montoSolicitado: Double): Boolean =
         montoSolicitado in montoMinimo..montoMaximo

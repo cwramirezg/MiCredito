@@ -26,7 +26,7 @@ fun CreditoNavigation(
     ) {
         composable(CreditoDestination.Home.route) {
             CreditoHomeScreen(
-                onNavigateToHistory = {
+                onNavigateToSimulacion = {
                     navController.navigate(CreditoDestination.Historia.route)
                 }
             )

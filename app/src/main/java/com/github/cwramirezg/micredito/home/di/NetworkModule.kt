@@ -53,7 +53,7 @@ object NetworkModule {
         val networkJson = Json { ignoreUnknownKeys = true }
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
-            .baseUrl("https://api.mibanco.com.pe/v1/")
+            .baseUrl("http://demo7525530.mockable.io/v1/")
             .client(okHttpClient)
             .addConverterFactory(networkJson.asConverterFactory(contentType))
             .build()

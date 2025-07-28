@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -16,9 +15,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.cwramirezg.micredito.R
 import com.github.cwramirezg.micredito.home.domain.entities.Cliente
+import com.github.cwramirezg.micredito.home.domain.entities.TipoCliente
 import com.github.cwramirezg.micredito.home.domain.entities.nombreCompleto
 
 @Composable
@@ -54,7 +57,9 @@ fun ClienteCard(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Cliente ${cliente.tipoCliente.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                    text = "Cliente ${
+                        cliente.tipoCliente.name.lowercase().replaceFirstChar { it.uppercase() }
+                    }",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -62,11 +67,30 @@ fun ClienteCard(
 
             IconButton(onClick = onHistoryClick) {
                 Icon(
-                    imageVector = Icons.Default.Info,
+                    painter = painterResource(id = R.drawable.outline_history_24),
                     contentDescription = "Ver historial",
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ClienteCardPreview() {
+    ClienteCard(
+        cliente = Cliente(
+            id = "c123",
+            nombres = "Juan Carlos",
+            apellidos = "Pérez López",
+            dni = "12345678",
+            telefono = "987654321",
+            email = "juan.perez@email.com",
+            tipoCliente = TipoCliente.RECURRENTE,
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis()
+        ),
+        onHistoryClick = {}
+    )
 }

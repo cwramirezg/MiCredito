@@ -20,9 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.cwramirezg.micredito.core.presentation.utils.toCurrency
 import com.github.cwramirezg.micredito.core.presentation.utils.toPercentage
+import com.github.cwramirezg.micredito.home.domain.entities.EstadoLineaCredito
 import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 
 @Composable
@@ -113,4 +115,23 @@ private fun InfoItem(
             color = MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LineaCreditoCardPreview() {
+    val lineaCredito = LineaCredito(
+        id = "",
+        createdAt = 876567567 ,
+        updatedAt = 34534534734,
+        clienteId = "4234234",
+        montoMaximo = 100000.0,
+        montoMinimo = 1000.0,
+        tasaInteres = 17.0,
+        plazoMaximo = 60,
+        plazoMinimo = 24,
+        estado = EstadoLineaCredito.ACTIVA,
+        fechaVencimiento = 234234234
+    )
+    LineaCreditoCard(lineaCredito)
 }

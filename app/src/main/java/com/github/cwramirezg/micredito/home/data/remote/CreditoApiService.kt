@@ -13,6 +13,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface CreditoApiService {
+
     @GET("clientes/{clienteId}")
     suspend fun obtenerCliente(
         @Path("clienteId") clienteId: String

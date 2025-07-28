@@ -7,13 +7,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.cwramirezg.micredito.core.presentation.utils.toCurrency
 
@@ -53,7 +55,11 @@ fun ResumenCreditoCard(
                 valor = "$plazo meses"
             )
 
-            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+            HorizontalDivider(
+                Modifier,
+                DividerDefaults.Thickness,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            )
 
             ResumenItem(
                 label = "Cuota mensual",
@@ -101,4 +107,16 @@ private fun ResumenItem(
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ResumenCreditoCardPreview() {
+    ResumenCreditoCard(
+        monto = 10000.0,
+        plazo = 12,
+        cuotaMensual = 833.33,
+        interesTotal = 8333.33,
+        montoTotal = 108333.33
+    )
 }

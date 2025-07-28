@@ -12,7 +12,7 @@ interface CreditoRepository {
     /**
      * Obtiene la línea de crédito activa del cliente
      */
-    suspend fun obtenerLineaCredito(clienteId: String): Flow<NetworkResult<LineaCredito>>
+    fun obtenerLineaCredito(clienteId: String): Flow<NetworkResult<LineaCredito>>
 
     /**
      * Obtiene los datos del cliente autenticado

@@ -10,6 +10,7 @@ import com.github.cwramirezg.micredito.home.data.remote.dto.SolicitudCreditoRequ
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response
+import timber.log.Timber
 import javax.inject.Inject
 
 class CreditoRemoteDataSource @Inject constructor(
@@ -26,15 +27,16 @@ class CreditoRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun obtenerLineaCredito(clienteId: String): Flow<NetworkResult<LineaCreditoDto>> =
-        flow {
-            emit(NetworkResult.Loading())
-            try {
-                val response = apiService.obtenerLineaCredito(clienteId)
-                emit(handleApiResponse(response))
-            } catch (e: Exception) {
-                emit(NetworkResult.Error("Error al obtener línea de crédito: ${e.message}"))
-            }
+    suspend fun obtenerLineaCredito(clienteId: String): NetworkResult<LineaCreditoDto> =
+        try {
+            Timber.d("Obteniendo datos de API para clienteId: $clienteId")
+            val response = apiService.obtenerLineaCredito(clienteId)
+            val result = handleApiResponse(response)
+            Timber.d("Resultado de API: $result")
+            result
+        } catch (e: Exception) {
+            Timber.e("Error en API: ${e.message}")
+            NetworkResult.Error("Error de red: ${e.message}")
         }
 
     suspend fun enviarSolicitudCredito(

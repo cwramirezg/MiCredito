@@ -21,9 +21,9 @@ object LineaCreditoMapper {
             plazoMaximo = dto.plazoMaximo,
             plazoMinimo = dto.plazoMinimo,
             estado = mapEstadoFromString(dto.estado),
-            fechaVencimiento = parseDateToTimestamp(dto.fechaVencimiento),
-            createdAt = parseDateToTimestamp(dto.createdAt),
-            updatedAt = parseDateToTimestamp(dto.updatedAt)
+            fechaVencimiento = dto.fechaVencimiento,
+            createdAt = dto.createdAt,
+            updatedAt = dto.updatedAt
         )
     }
 
@@ -37,9 +37,9 @@ object LineaCreditoMapper {
             plazoMaximo = dto.plazoMaximo,
             plazoMinimo = dto.plazoMinimo,
             estado = dto.estado,
-            fechaVencimiento = parseDateToTimestamp(dto.fechaVencimiento),
-            createdAt = parseDateToTimestamp(dto.createdAt),
-            updatedAt = parseDateToTimestamp(dto.updatedAt)
+            fechaVencimiento = dto.fechaVencimiento,
+            createdAt = dto.createdAt,
+            updatedAt = dto.updatedAt
         )
     }
 

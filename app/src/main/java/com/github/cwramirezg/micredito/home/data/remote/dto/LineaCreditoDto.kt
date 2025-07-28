@@ -13,7 +13,7 @@ data class LineaCreditoDto(
     @SerialName("plazo_maximo") val plazoMaximo: Int,
     @SerialName("plazo_minimo") val plazoMinimo: Int,
     @SerialName("estado") val estado: String,
-    @SerialName("fecha_vencimiento") val fechaVencimiento: String,
-    @SerialName("created_at") val createdAt: String,
-    @SerialName("updated_at") val updatedAt: String
+    @SerialName("fecha_vencimiento") val fechaVencimiento: Long,
+    @SerialName("created_at") val createdAt: Long,
+    @SerialName("updated_at") val updatedAt: Long
 )
