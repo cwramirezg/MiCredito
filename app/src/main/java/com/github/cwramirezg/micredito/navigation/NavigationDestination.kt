@@ -13,7 +13,7 @@ sealed class NavigationDestination {
     object CreditoHome : NavigationDestination()
 
     @Serializable
-    data class Simulacion(val clienteId: String) : NavigationDestination()
+    data class Simulacion(val idLineaCredito: String) : NavigationDestination()
 
     @Serializable
     data class Confirmacion(val solicitudId: String) : NavigationDestination()

@@ -1,8 +1,10 @@
 package com.github.cwramirezg.micredito.home.domain.entities
 
 import com.github.cwramirezg.micredito.core.domain.models.BaseEntity
+import kotlinx.serialization.Serializable
 import timber.log.Timber
 
+@Serializable
 data class LineaCredito(
     override val id: String,
     override val createdAt: Long,

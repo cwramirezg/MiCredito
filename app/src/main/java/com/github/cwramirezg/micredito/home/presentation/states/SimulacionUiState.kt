@@ -2,7 +2,7 @@ package com.github.cwramirezg.micredito.home.presentation.states
 
 sealed class SimulacionUiState {
     object Idle : SimulacionUiState()
-    object Calculating : SimulacionUiState()
+    object Loading : SimulacionUiState()
 
     data class Success(
         val monto: Double,

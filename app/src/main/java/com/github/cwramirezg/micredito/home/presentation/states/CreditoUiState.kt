@@ -4,6 +4,7 @@ import com.github.cwramirezg.micredito.home.domain.entities.Cliente
 import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 
 sealed class CreditoUiState {
+    object Idle : CreditoUiState()
     object Loading : CreditoUiState()
 
     data class Success(
@@ -16,5 +17,4 @@ sealed class CreditoUiState {
         val canRetry: Boolean = true
     ) : CreditoUiState()
 
-    object Idle : CreditoUiState()
 }
