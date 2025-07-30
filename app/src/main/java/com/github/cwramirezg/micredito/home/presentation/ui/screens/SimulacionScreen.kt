@@ -12,6 +12,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,10 @@ fun SimulacionScreen(
     val solicitudUiState by viewModel.solicitudUiState.collectAsStateWithLifecycle()
     val montoSeleccionado by viewModel.montoSeleccionado.collectAsStateWithLifecycle()
     val plazoSeleccionado by viewModel.plazoSeleccionado.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.inicializarSimulacion()
+    }
 
     BaseScreenWithAppBar(
         uiState = uiState,

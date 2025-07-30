@@ -1,8 +1,6 @@
 package com.github.cwramirezg.micredito.home.presentation.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.core.presentation.base.BaseViewModel
 import com.github.cwramirezg.micredito.core.presentation.states.UiState
@@ -17,7 +15,7 @@ import com.github.cwramirezg.micredito.home.domain.usecase.SimularCreditoUseCase
 import com.github.cwramirezg.micredito.home.domain.usecase.ValidarSolicitudUseCase
 import com.github.cwramirezg.micredito.home.presentation.pojos.SimulacionSuccess
 import com.github.cwramirezg.micredito.home.presentation.pojos.SolicitudSuccess
-import com.github.cwramirezg.micredito.navigation.NavigationDestination
+import com.github.cwramirezg.micredito.navigation.utils.ArgsProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,7 +33,7 @@ class SimulacionViewModel @Inject constructor(
     private val simularCreditoUseCase: SimularCreditoUseCase,
     private val enviarSolicitudUseCase: EnviarSolicitudUseCase,
     private val validarSolicitudUseCase: ValidarSolicitudUseCase,
-    savedStateHandle: SavedStateHandle,
+    argsProvider: ArgsProvider,
 ) : BaseViewModel() {
 
     private val _simulacionUiState = MutableStateFlow<UiState<SimulacionSuccess>>(UiState.Idle)
@@ -50,7 +48,7 @@ class SimulacionViewModel @Inject constructor(
     private val _plazoSeleccionado = MutableStateFlow(12)
     val plazoSeleccionado: StateFlow<Int> = _plazoSeleccionado.asStateFlow()
 
-    private val simulacion = savedStateHandle.toRoute<NavigationDestination.Simulacion>()
+    private val simulacion = argsProvider.getSimulacionArgs()
 
     val lineaCredito = LineaCredito(
         simulacion.idLineaCredito,
@@ -78,7 +76,7 @@ class SimulacionViewModel @Inject constructor(
         updatedAt = System.currentTimeMillis()
     )
 
-    init {
+    fun inicializarSimulacion() {
         Timber.d("idLineaCredito: ${simulacion.idLineaCredito}")
         _montoSeleccionado.value = lineaCredito.montoMinimo
         configurarSimulacionReactiva()

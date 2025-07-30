@@ -1,6 +1,7 @@
 package com.github.cwramirezg.micredito.home.domain.usecase
 
 import com.github.cwramirezg.micredito.core.data.network.NetworkResult
+import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.home.domain.entities.EstadoLineaCredito
 import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 import com.github.cwramirezg.micredito.home.domain.repository.CreditoRepository
@@ -47,8 +48,8 @@ class SimularCreditoUseCaseTest {
         val result = useCase(params).first()
 
         // Then
-        assertTrue(result is NetworkResult.Success)
-        val simulacion = (result as NetworkResult.Success).data
+        assertTrue(result is RepositoryResult.Success)
+        val simulacion = (result as RepositoryResult.Success).data
         assertEquals(10000.0, simulacion.monto)
         assertTrue(simulacion.cuotaMensual > 0)
     }
