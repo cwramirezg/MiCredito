@@ -9,7 +9,7 @@ sealed class CreditoUiState {
 
     data class Success(
         val cliente: Cliente,
-        val lineaCredito: LineaCredito
+        val lineaCreditos: List<LineaCredito>
     ) : CreditoUiState()
 
     data class Error(

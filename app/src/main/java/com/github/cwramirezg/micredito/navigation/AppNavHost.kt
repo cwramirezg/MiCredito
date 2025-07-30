@@ -123,25 +123,28 @@ fun AppNavHost(
 
         composable<NavigationDestination.CreditoHome> {
             CreditoHomeScreen(
-                /*  onNavigateToSimulacion = { clienteId ->
+                  onNavigateToHistory = {
+                    //  navigationManager.navigateTo(NavigationDestination.History)
+                  },
+                  onNavigateToSimulacion = { clienteId ->
                       navigationManager.navigateTo(NavigationDestination.Simulacion(clienteId))
-                  }*/
+                  }
             )
         }
 
         composable<NavigationDestination.Simulacion> { backStackEntry ->
             SimulacionScreen(
-                /* onNavigateToConfirmacion = { solicitudId ->
+                 onNavigateToConfirmacion = { solicitudId ->
                      navigationManager.navigateTo(NavigationDestination.Confirmacion(solicitudId))
-                 }*/
+                 }
             )
         }
 
         composable<NavigationDestination.Confirmacion> { backStackEntry ->
             ConfirmacionScreen(
-                /*  onNavigateToHome = {
+                  onNavigateToHome = {
                       navigationManager.clearBackStack()
-                  }*/
+                  }
             )
         }
 

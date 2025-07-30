@@ -11,6 +11,7 @@ sealed class SolicitudUiState {
 
     data class Error(
         val message: String,
-        val isOffline: Boolean = false
+        val isOffline: Boolean = false,
+        val idSolicitud: String = ""
     ) : SolicitudUiState()
 }

@@ -19,7 +19,7 @@ fun NavGraphBuilder.homeNavGraph(navigationManager: NavigationManager) {
             SimulacionScreen()
         }
         composable<NavigationDestination.Confirmacion> {
-            ConfirmacionScreen()
+
         }
     }
 }

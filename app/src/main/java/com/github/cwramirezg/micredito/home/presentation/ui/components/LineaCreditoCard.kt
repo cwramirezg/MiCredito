@@ -1,5 +1,6 @@
 package com.github.cwramirezg.micredito.home.presentation.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,10 +32,13 @@ import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 @Composable
 fun LineaCreditoCard(
     lineaCredito: LineaCredito,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (String) -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick(lineaCredito.id) },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
@@ -97,10 +102,11 @@ fun LineaCreditoCard(
 }
 
 @Composable
-private fun InfoItem(
+fun InfoItem(
     label: String,
     valor: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    valorColor: Color = MaterialTheme.colorScheme.onSecondaryContainer
 ) {
     Column(modifier = modifier) {
         Text(
@@ -112,7 +118,7 @@ private fun InfoItem(
             text = valor,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSecondaryContainer
+            color = valorColor
         )
     }
 }
@@ -122,7 +128,7 @@ private fun InfoItem(
 fun LineaCreditoCardPreview() {
     val lineaCredito = LineaCredito(
         id = "",
-        createdAt = 876567567 ,
+        createdAt = 876567567,
         updatedAt = 34534534734,
         clienteId = "4234234",
         montoMaximo = 100000.0,
@@ -133,5 +139,8 @@ fun LineaCreditoCardPreview() {
         estado = EstadoLineaCredito.ACTIVA,
         fechaVencimiento = 234234234
     )
-    LineaCreditoCard(lineaCredito)
+    LineaCreditoCard(
+        lineaCredito = lineaCredito,
+        onClick = {}
+    )
 }

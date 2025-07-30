@@ -27,7 +27,7 @@ class CreditoRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun obtenerLineaCredito(clienteId: String): NetworkResult<LineaCreditoDto> =
+    suspend fun obtenerLineaCredito(clienteId: String): NetworkResult<List<LineaCreditoDto>> =
         try {
             Timber.d("Obteniendo datos de API para clienteId: $clienteId")
             val response = apiService.obtenerLineaCredito(clienteId)

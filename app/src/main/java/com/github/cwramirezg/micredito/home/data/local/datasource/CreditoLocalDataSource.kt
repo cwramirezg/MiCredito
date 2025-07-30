@@ -15,11 +15,11 @@ class CreditoLocalDataSource @Inject constructor(
     private val simulacionDao: SimulacionDao
 ) {
 
-    suspend fun obtenerLineaCreditoLocal(clienteId: String): NetworkResult<LineaCreditoEntity> =
+    suspend fun obtenerLineaCreditoLocal(clienteId: String): NetworkResult<List<LineaCreditoEntity>> =
         try {
             Timber.d("Obteniendo datos locales para clienteId: $clienteId")
             val entity = creditoDao.obtenerLineaCreditoActiva(clienteId)
-            if (entity != null) {
+            if (entity.isNotEmpty()) {
                 Timber.d("Datos encontrados en cache local")
                 NetworkResult.Success(entity)
             } else {
@@ -31,7 +31,7 @@ class CreditoLocalDataSource @Inject constructor(
             NetworkResult.Error("Error en cache local: ${e.message}")
         }
 
-    suspend fun guardarLineaCredito(lineaCredito: LineaCreditoEntity) {
+    suspend fun guardarLineaCredito(lineaCredito: List<LineaCreditoEntity>) {
         creditoDao.insertarLineaCredito(lineaCredito)
     }
 
@@ -49,6 +49,10 @@ class CreditoLocalDataSource @Inject constructor(
 
     suspend fun obtenerSolicitudesPendientes(): List<SolicitudPendienteEntity> {
         return creditoDao.obtenerSolicitudesPendientes()
+    }
+
+    suspend fun obtenerSolicitudPendiente(idSolicitud: String): SolicitudPendienteEntity {
+        return creditoDao.obtenerSolicitudesPendientes(idSolicitud)
     }
 
     suspend fun eliminarSolicitudPendiente(solicitud: SolicitudPendienteEntity) {

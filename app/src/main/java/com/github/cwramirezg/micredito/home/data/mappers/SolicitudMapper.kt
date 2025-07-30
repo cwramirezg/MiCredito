@@ -1,9 +1,12 @@
 package com.github.cwramirezg.micredito.home.data.mappers
 
+import com.github.cwramirezg.micredito.home.data.local.entities.SolicitudPendienteEntity
 import com.github.cwramirezg.micredito.home.data.remote.dto.SolicitudCreditoDto
+import com.github.cwramirezg.micredito.home.domain.entities.Confirmacion
 import com.github.cwramirezg.micredito.home.domain.entities.EstadoSolicitud
 import com.github.cwramirezg.micredito.home.domain.entities.SimulacionCredito
 import com.github.cwramirezg.micredito.home.domain.entities.SolicitudCredito
+import com.github.cwramirezg.micredito.home.presentation.pojos.EstadoConfirmacion
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -32,6 +35,27 @@ object SolicitudMapper {
             createdAt = parseDateToTimestamp(dto.createdAt),
             updatedAt = parseDateToTimestamp(dto.updatedAt)
         )
+    }
+
+    fun fromEntityToDomain(entity: SolicitudPendienteEntity): Confirmacion {
+        return Confirmacion(
+            montoSolicitado = entity.monto,
+            tasa = 17.0,
+            plazo = entity.plazo,
+            cuotaMensual = entity.monto,
+            estado = mapEstadoConfirmacionFromString(entity.estadoLocal)
+        )
+    }
+
+    private fun mapEstadoConfirmacionFromString(estado: String): EstadoConfirmacion {
+        return when (estado.uppercase()) {
+            "POR_ENVIAR" -> EstadoConfirmacion.POR_ENVIAR
+            "ENVIADO" -> EstadoConfirmacion.ENVIADO
+            "RECHAZADO" -> EstadoConfirmacion.RECHAZADO
+            else -> {
+                EstadoConfirmacion.POR_ENVIAR
+            }
+        }
     }
 
     private fun mapEstadoFromString(estado: String): EstadoSolicitud {

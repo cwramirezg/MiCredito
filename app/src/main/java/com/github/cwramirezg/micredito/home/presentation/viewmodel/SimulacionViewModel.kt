@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.concurrent.timer
 
 @HiltViewModel
 class SimulacionViewModel @Inject constructor(
@@ -54,7 +53,7 @@ class SimulacionViewModel @Inject constructor(
     private val simulacion = savedStateHandle.toRoute<NavigationDestination.Simulacion>()
 
     val lineaCredito = LineaCredito(
-        "id123",
+        simulacion.idLineaCredito,
         1756608068000,
         1756608068000,
         "c123",
@@ -152,20 +151,15 @@ class SimulacionViewModel @Inject constructor(
     }
 
     fun solicitarCredito() {
+        Timber.d("Solicitando crédito")
         val cliente = cliente
         val lineaCredito = lineaCredito
         val monto = _montoSeleccionado.value
         val plazo = _plazoSeleccionado.value
 
-        if (cliente == null || lineaCredito == null) {
-            _solicitudUiState.value = SolicitudUiState.Error("Datos incompletos")
-            return
-        }
-
         launchSafe {
             _solicitudUiState.value = SolicitudUiState.Loading
 
-            // Validar solicitud primero
             val validacionParams = Pair(
                 SolicitudCreditoRequest(cliente.id, lineaCredito.id, monto, plazo),
                 lineaCredito
@@ -215,7 +209,8 @@ class SimulacionViewModel @Inject constructor(
                     val isOffline = result.message.contains("Sin conexión", ignoreCase = true)
                     _solicitudUiState.value = SolicitudUiState.Error(
                         message = result.message,
-                        isOffline = isOffline
+                        isOffline = isOffline,
+                        idSolicitud = result.data ?: ""
                     )
                 }
 

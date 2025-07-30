@@ -22,7 +22,7 @@ interface CreditoApiService {
     @GET("clientes/{clienteId}/linea-credito")
     suspend fun obtenerLineaCredito(
         @Path("clienteId") clienteId: String
-    ): Response<ApiResponse<LineaCreditoDto>>
+    ): Response<ApiResponse<List<LineaCreditoDto>>>
 
     @POST("solicitudes-credito")
     suspend fun enviarSolicitudCredito(

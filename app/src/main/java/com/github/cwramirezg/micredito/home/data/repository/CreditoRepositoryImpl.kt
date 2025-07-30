@@ -10,13 +10,13 @@ import com.github.cwramirezg.micredito.home.data.mappers.SolicitudMapper
 import com.github.cwramirezg.micredito.home.data.remote.datasource.CreditoRemoteDataSource
 import com.github.cwramirezg.micredito.home.data.remote.dto.SolicitudCreditoRequestDto
 import com.github.cwramirezg.micredito.home.domain.entities.Cliente
+import com.github.cwramirezg.micredito.home.domain.entities.Confirmacion
 import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 import com.github.cwramirezg.micredito.home.domain.entities.SimulacionCredito
 import com.github.cwramirezg.micredito.home.domain.entities.SolicitudCredito
 import com.github.cwramirezg.micredito.home.domain.entities.SolicitudCreditoRequest
 import com.github.cwramirezg.micredito.home.domain.repository.CreditoRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -27,15 +27,19 @@ class CreditoRepositoryImpl @Inject constructor(
     private val localDataSource: CreditoLocalDataSource
 ) : CreditoRepository {
 
-    override fun obtenerLineaCredito(clienteId: String): Flow<NetworkResult<LineaCredito>> =
+    override fun obtenerLineaCredito(clienteId: String): Flow<NetworkResult<List<LineaCredito>>> =
         flow {
             Timber.d("=== Iniciando obtención de línea de crédito ===")
             emit(NetworkResult.Loading())
             try {
                 val localData = localDataSource.obtenerLineaCreditoLocal(clienteId)
-                if (localData is NetworkResult.Success && localData.data != null) {
+                if (localData is NetworkResult.Success) {
                     Timber.d("Datos encontrados en cache local")
-                    emit(NetworkResult.Success(LineaCreditoMapper.fromEntityToDomain(localData.data)))
+                    emit(NetworkResult.Success(localData.data.map {
+                        LineaCreditoMapper.fromEntityToDomain(
+                            it
+                        )
+                    }))
                 }
 
                 // 2. Siempre intentar obtener datos frescos de la red
@@ -45,18 +49,18 @@ class CreditoRepositoryImpl @Inject constructor(
                 when (remoteData) {
                     is NetworkResult.Success -> {
                         Timber.d("Datos obtenidos exitosamente de la red")
-                        val lineaCredito = LineaCreditoMapper.fromDtoToDomain(remoteData.data)
+                        val lineaCreditos =
+                            remoteData.data.map { LineaCreditoMapper.fromDtoToDomain(it) }
 
-                        // Guardar en cache local
-                        val lineaCreditoEntity = LineaCreditoMapper.fromDtoToEntity(remoteData.data)
+                        val lineaCreditoEntity =
+                            remoteData.data.map { LineaCreditoMapper.fromDtoToEntity(it) }
                         localDataSource.guardarLineaCredito(lineaCreditoEntity)
 
-                        emit(NetworkResult.Success(lineaCredito))
+                        emit(NetworkResult.Success(lineaCreditos))
                     }
 
                     is NetworkResult.Error -> {
                         Timber.d("Error de red: ${remoteData.message}")
-                        // Si ya emitimos datos del cache, no emitir error
                         if (localData !is NetworkResult.Success) {
                             emit(NetworkResult.Error("No hay conexión y no se encontraron datos locales"))
                         }
@@ -107,7 +111,6 @@ class CreditoRepositoryImpl @Inject constructor(
                 }
 
                 is NetworkResult.Error -> {
-                    // Guardar para reintento offline
                     val solicitudPendiente = SolicitudPendienteEntity(
                         clienteId = solicitud.clienteId,
                         lineaCreditoId = solicitud.lineaCreditoId,
@@ -115,13 +118,30 @@ class CreditoRepositoryImpl @Inject constructor(
                         plazo = solicitud.plazo
                     )
                     localDataSource.guardarSolicitudPendiente(solicitudPendiente)
-                    emit(NetworkResult.Error("Sin conexión. La solicitud se enviará automáticamente cuando haya internet."))
+                    emit(
+                        value = NetworkResult.Error(
+                            message = "Sin conexión. La solicitud se enviará automáticamente cuando haya internet.",
+                            data = solicitudPendiente.id
+                        )
+                    )
                 }
 
                 is NetworkResult.Loading -> emit(NetworkResult.Loading())
             }
         }
     }
+
+    override suspend fun obtenerSolicitudCredito(solicitudId: String): Flow<NetworkResult<Confirmacion>> =
+        flow {
+            emit(NetworkResult.Loading())
+            try {
+                val solicitudEntity = localDataSource.obtenerSolicitudPendiente(solicitudId)
+                val confirmacion = SolicitudMapper.fromEntityToDomain(solicitudEntity)
+                emit(NetworkResult.Success(confirmacion))
+            } catch (e: Exception) {
+                emit(NetworkResult.Error("Error al obtener solicitud: ${e.message}"))
+            }
+        }
 
     override suspend fun obtenerHistorialSolicitudes(
         clienteId: String

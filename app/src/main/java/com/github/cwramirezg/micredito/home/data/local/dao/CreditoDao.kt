@@ -13,13 +13,16 @@ import com.github.cwramirezg.micredito.home.data.local.entities.SolicitudPendien
 interface CreditoDao {
 
     @Query("SELECT * FROM lineas_credito WHERE clienteId = :clienteId AND estado = 'ACTIVA'")
-    suspend fun obtenerLineaCreditoActiva(clienteId: String): LineaCreditoEntity?
+    suspend fun obtenerLineaCreditoActiva(clienteId: String): List<LineaCreditoEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertarLineaCredito(lineaCredito: LineaCreditoEntity)
+    suspend fun insertarLineaCredito(lineaCredito: List<LineaCreditoEntity>)
 
     @Query("SELECT * FROM solicitudes_pendientes WHERE estadoLocal = 'PENDIENTE_ENVIO'")
     suspend fun obtenerSolicitudesPendientes(): List<SolicitudPendienteEntity>
+
+    @Query("SELECT * FROM solicitudes_pendientes WHERE id = :idSolicitud")
+    suspend fun obtenerSolicitudesPendientes(idSolicitud: String): SolicitudPendienteEntity
 
     @Insert
     suspend fun insertarSolicitudPendiente(solicitud: SolicitudPendienteEntity)

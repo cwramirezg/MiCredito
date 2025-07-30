@@ -10,15 +10,16 @@ import javax.inject.Inject
 
 class ObtenerLineaCreditoUseCase @Inject constructor(
     private val repository: CreditoRepository
-) : BaseUseCase<String, LineaCredito>() {
+) : BaseUseCase<String, List<LineaCredito>>() {
 
-    override suspend fun execute(parameters: String): Flow<NetworkResult<LineaCredito>> {
-        return repository.obtenerLineaCredito(parameters).map { result ->
+    override suspend fun execute(clienteId: String): Flow<NetworkResult<List<LineaCredito>>> {
+        return repository.obtenerLineaCredito(clienteId).map { result ->
             when (result) {
                 is NetworkResult.Success -> {
-                    val lineaCredito = result.data
-                    if (lineaCredito.esValida()) {
-                        NetworkResult.Success(lineaCredito)
+                    val lineaCreditos = result.data
+                    val validas = lineaCreditos.filter { it.esValida() }
+                    if (validas.isNotEmpty()) {
+                        NetworkResult.Success(validas)
                     } else {
                         NetworkResult.Error("La línea de crédito no está disponible")
                     }

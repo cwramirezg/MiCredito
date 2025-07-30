@@ -3,7 +3,6 @@ package com.github.cwramirezg.micredito.home.presentation.viewmodel
 import com.github.cwramirezg.micredito.core.data.network.NetworkResult
 import com.github.cwramirezg.micredito.core.presentation.base.BaseViewModel
 import com.github.cwramirezg.micredito.home.domain.entities.Cliente
-import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 import com.github.cwramirezg.micredito.home.domain.entities.TipoCliente
 import com.github.cwramirezg.micredito.home.domain.usecase.ObtenerLineaCreditoUseCase
 import com.github.cwramirezg.micredito.home.presentation.states.CreditoUiState
@@ -23,42 +22,37 @@ class CreditoViewModel @Inject constructor(
     val creditoUiState: StateFlow<CreditoUiState> = _creditoUiState.asStateFlow()
 
 
-    private val _clienteActual = MutableStateFlow<Cliente?>(null)
-    private val _lineaCreditoActual = MutableStateFlow<LineaCredito?>(null)
-
+    private val cliente = Cliente(
+        id = "c123",
+        nombres = "Juan Carlos",
+        apellidos = "Pérez López",
+        dni = "12345678",
+        telefono = "987654321",
+        email = "juan.perez@email.com",
+        tipoCliente = TipoCliente.RECURRENTE,
+        createdAt = System.currentTimeMillis(),
+        updatedAt = System.currentTimeMillis()
+    )
 
     init {
         inicializarDatos()
     }
 
     private fun inicializarDatos() {
-        cargarDatosCredito("c123")
+        cargarDatosCredito()
     }
 
-    fun cargarDatosCredito(clienteId: String) {
-        Timber.d("Iniciando carga de datos para: $clienteId")
+    fun cargarDatosCredito() {
+        Timber.d("Iniciando carga de datos")
         launchSafe {
             _creditoUiState.value = CreditoUiState.Loading
 
-            obtenerLineaCreditoUseCase(clienteId).collect { result ->
+            obtenerLineaCreditoUseCase(cliente.id).collect { result ->
                 Timber.d("Resultado recibido: $result")
                 when (result) {
                     is NetworkResult.Success -> {
-                        val lineaCredito = result.data
-                        _lineaCreditoActual.value = lineaCredito
-                        val cliente = Cliente(
-                            id = clienteId,
-                            nombres = "Juan Carlos",
-                            apellidos = "Pérez López",
-                            dni = "12345678",
-                            telefono = "987654321",
-                            email = "juan.perez@email.com",
-                            tipoCliente = TipoCliente.RECURRENTE,
-                            createdAt = System.currentTimeMillis(),
-                            updatedAt = System.currentTimeMillis()
-                        )
-                        _clienteActual.value = cliente
-                        _creditoUiState.value = CreditoUiState.Success(cliente, lineaCredito)
+                        val lineaCreditos = result.data
+                        _creditoUiState.value = CreditoUiState.Success(cliente, lineaCreditos)
                         Timber.d("Estado actualizado a Success")
                     }
 
@@ -81,8 +75,7 @@ class CreditoViewModel @Inject constructor(
     }
 
     fun reintentar() {
-        val clienteId = _clienteActual.value?.id ?: "c123"
-        cargarDatosCredito(clienteId)
+        cargarDatosCredito()
     }
 
 }

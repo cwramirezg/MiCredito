@@ -11,7 +11,7 @@ data class SolicitudPendienteEntity(
     val monto: Double,
     val plazo: Int,
     val intentos: Int = 0,
-    val ultimoIntento: Long? = null,
+    val ultimoIntento: Long = 0,
     val fechaCreacion: Long = System.currentTimeMillis(),
     val estadoLocal: String = "PENDIENTE_ENVIO"
 )
