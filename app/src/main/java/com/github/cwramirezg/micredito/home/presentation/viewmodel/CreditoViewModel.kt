@@ -1,6 +1,6 @@
 package com.github.cwramirezg.micredito.home.presentation.viewmodel
 
-import com.github.cwramirezg.micredito.core.data.network.NetworkResult
+import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.core.presentation.base.BaseViewModel
 import com.github.cwramirezg.micredito.home.domain.entities.Cliente
 import com.github.cwramirezg.micredito.home.domain.entities.TipoCliente
@@ -50,13 +50,13 @@ class CreditoViewModel @Inject constructor(
             obtenerLineaCreditoUseCase(cliente.id).collect { result ->
                 Timber.d("Resultado recibido: $result")
                 when (result) {
-                    is NetworkResult.Success -> {
+                    is RepositoryResult.Success -> {
                         val lineaCreditos = result.data
                         _creditoUiState.value = CreditoUiState.Success(cliente, lineaCreditos)
                         Timber.d("Estado actualizado a Success")
                     }
 
-                    is NetworkResult.Error -> {
+                    is RepositoryResult.Error -> {
                         Timber.e("Error: ${result.message}")
                         _creditoUiState.value = CreditoUiState.Error(
                             message = result.message,
@@ -64,7 +64,7 @@ class CreditoViewModel @Inject constructor(
                         )
                     }
 
-                    is NetworkResult.Loading -> {
+                    is RepositoryResult.Loading -> {
                         if (_creditoUiState.value !is CreditoUiState.Success) {
                             _creditoUiState.value = CreditoUiState.Loading
                         }

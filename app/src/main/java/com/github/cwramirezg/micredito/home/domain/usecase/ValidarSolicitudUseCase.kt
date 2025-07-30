@@ -1,6 +1,6 @@
 package com.github.cwramirezg.micredito.home.domain.usecase
 
-import com.github.cwramirezg.micredito.core.data.network.NetworkResult
+import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.core.domain.usecase.BaseUseCase
 import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 import com.github.cwramirezg.micredito.home.domain.entities.SolicitudCreditoRequest
@@ -18,8 +18,8 @@ class ValidarSolicitudUseCase @Inject constructor() :
 
     override suspend fun execute(
         parameters: Pair<SolicitudCreditoRequest, LineaCredito>
-    ): Flow<NetworkResult<ValidacionSolicitud>> = flow {
-        emit(NetworkResult.Loading())
+    ): Flow<RepositoryResult<ValidacionSolicitud>> = flow {
+        emit(RepositoryResult.Loading())
 
         val (solicitud, lineaCredito) = parameters
         val errores = mutableListOf<String>()
@@ -50,6 +50,6 @@ class ValidarSolicitudUseCase @Inject constructor() :
             errores = errores
         )
 
-        emit(NetworkResult.Success(validacion))
+        emit(RepositoryResult.Success(validacion))
     }
 }

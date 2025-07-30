@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.cwramirezg.micredito.R
 
@@ -66,4 +67,13 @@ fun DefaultErrorContent(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultErrorContentPreview() {
+    DefaultErrorContent(
+        message = "Error al cargar los datos",
+        onRetry = { }
+    )
 }

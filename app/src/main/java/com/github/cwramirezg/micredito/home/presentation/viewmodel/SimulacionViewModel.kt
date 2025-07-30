@@ -3,7 +3,7 @@ package com.github.cwramirezg.micredito.home.presentation.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.github.cwramirezg.micredito.core.data.network.NetworkResult
+import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.core.presentation.base.BaseViewModel
 import com.github.cwramirezg.micredito.core.presentation.states.UiState
 import com.github.cwramirezg.micredito.home.domain.entities.Cliente
@@ -109,7 +109,7 @@ class SimulacionViewModel @Inject constructor(
 
             simularCreditoUseCase(params).collect { result ->
                 when (result) {
-                    is NetworkResult.Success -> {
+                    is RepositoryResult.Success -> {
                         val simulacion = result.data
                         _simulacionUiState.value = UiState.Success(
                             data = SimulacionSuccess(
@@ -122,11 +122,11 @@ class SimulacionViewModel @Inject constructor(
                         )
                     }
 
-                    is NetworkResult.Error -> {
+                    is RepositoryResult.Error -> {
                         _simulacionUiState.value = UiState.Error(result.message)
                     }
 
-                    is NetworkResult.Loading -> {
+                    is RepositoryResult.Loading -> {
                         _simulacionUiState.value = UiState.Loading
                     }
                 }
@@ -167,7 +167,7 @@ class SimulacionViewModel @Inject constructor(
 
             validarSolicitudUseCase(validacionParams).collect { validacionResult ->
                 when (validacionResult) {
-                    is NetworkResult.Success -> {
+                    is RepositoryResult.Success -> {
                         val validacion = validacionResult.data
                         if (validacion.esValida) {
                             enviarSolicitudCredito(cliente.id, lineaCredito.id, monto, plazo)
@@ -177,7 +177,7 @@ class SimulacionViewModel @Inject constructor(
                         }
                     }
 
-                    is NetworkResult.Error -> {
+                    is RepositoryResult.Error -> {
                         _solicitudUiState.value = SolicitudUiState.Error(validacionResult.message)
                     }
 
@@ -198,14 +198,14 @@ class SimulacionViewModel @Inject constructor(
 
         enviarSolicitudUseCase(solicitud).collect { result ->
             when (result) {
-                is NetworkResult.Success -> {
+                is RepositoryResult.Success -> {
                     _solicitudUiState.value = SolicitudUiState.Success(
                         mensaje = "¡Solicitud enviada exitosamente! Te contactaremos pronto.",
                         solicitudId = result.data.id
                     )
                 }
 
-                is NetworkResult.Error -> {
+                is RepositoryResult.Error -> {
                     val isOffline = result.message.contains("Sin conexión", ignoreCase = true)
                     _solicitudUiState.value = SolicitudUiState.Error(
                         message = result.message,
@@ -214,7 +214,7 @@ class SimulacionViewModel @Inject constructor(
                     )
                 }
 
-                is NetworkResult.Loading -> {
+                is RepositoryResult.Loading -> {
                     _solicitudUiState.value = SolicitudUiState.Loading
                 }
             }

@@ -27,13 +27,13 @@ fun CreditoHomeScreen(
     val creditoUiState by viewModel.creditoUiState.collectAsStateWithLifecycle()
 
     BaseScreenWithAppBar(
-        title = "Mis lineas de crédito",
         uiState = when (creditoUiState) {
             is CreditoUiState.Idle -> UiState.Idle
             is CreditoUiState.Loading -> UiState.Loading
             is CreditoUiState.Success -> UiState.Success(creditoUiState)
             is CreditoUiState.Error -> UiState.Error((creditoUiState as CreditoUiState.Error).message)
         },
+        title = "Mis lineas de crédito",
         onRetry = viewModel::reintentar
     ) { creditoState ->
         CreditoContent(

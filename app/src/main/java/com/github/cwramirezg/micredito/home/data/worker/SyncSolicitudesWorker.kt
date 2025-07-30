@@ -11,7 +11,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
-import com.github.cwramirezg.micredito.core.data.network.NetworkResult
+import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.home.domain.repository.CreditoRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -29,11 +29,11 @@ class SyncSolicitudesWorker @AssistedInject constructor(
             creditoRepository.reintentarSolicitudesPendientes().collect { result ->
                 // Log del resultado pero no falla el worker
                 when (result) {
-                    is NetworkResult.Success -> {
+                    is RepositoryResult.Success -> {
                         // Solicitudes enviadas exitosamente
                     }
 
-                    is NetworkResult.Error -> {
+                    is RepositoryResult.Error -> {
                         // Error pero continuamos para próximo intento
                     }
 

@@ -1,6 +1,6 @@
 package com.github.cwramirezg.micredito.home.data.local.datasource
 
-import com.github.cwramirezg.micredito.core.data.network.NetworkResult
+import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.home.data.local.dao.CreditoDao
 import com.github.cwramirezg.micredito.home.data.local.dao.SimulacionDao
 import com.github.cwramirezg.micredito.home.data.local.entities.LineaCreditoEntity
@@ -15,20 +15,20 @@ class CreditoLocalDataSource @Inject constructor(
     private val simulacionDao: SimulacionDao
 ) {
 
-    suspend fun obtenerLineaCreditoLocal(clienteId: String): NetworkResult<List<LineaCreditoEntity>> =
+    suspend fun obtenerLineaCreditoLocal(clienteId: String): RepositoryResult<List<LineaCreditoEntity>> =
         try {
             Timber.d("Obteniendo datos locales para clienteId: $clienteId")
             val entity = creditoDao.obtenerLineaCreditoActiva(clienteId)
             if (entity.isNotEmpty()) {
                 Timber.d("Datos encontrados en cache local")
-                NetworkResult.Success(entity)
+                RepositoryResult.Success(entity)
             } else {
                 Timber.d("No hay datos en cache local")
-                NetworkResult.Error("No hay datos locales")
+                RepositoryResult.Error("No hay datos locales")
             }
         } catch (e: Exception) {
             Timber.e("Error en cache local: ${e.message}")
-            NetworkResult.Error("Error en cache local: ${e.message}")
+            RepositoryResult.Error("Error en cache local: ${e.message}")
         }
 
     suspend fun guardarLineaCredito(lineaCredito: List<LineaCreditoEntity>) {

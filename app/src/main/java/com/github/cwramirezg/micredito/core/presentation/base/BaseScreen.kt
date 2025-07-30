@@ -15,13 +15,13 @@ fun <T> BaseScreen(
     uiState: UiState<T>,
     modifier: Modifier = Modifier,
     onRetry: (() -> Unit)? = null,
+    containerAlignment: Alignment = Alignment.Center,
     idleContent: @Composable () -> Unit = { DefaultIdleContent() },
     loadingContent: @Composable () -> Unit = { DefaultLoadingContent() },
+    successContent: @Composable (T) -> Unit,
     errorContent: @Composable (String, (() -> Unit)?) -> Unit = { message, retry ->
         DefaultErrorContent(message, retry)
-    },
-    containerAlignment: Alignment = Alignment.Center,
-    successContent: @Composable (T) -> Unit
+    }
 ) {
     Box(
         modifier = modifier.fillMaxSize(),

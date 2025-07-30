@@ -2,7 +2,7 @@ package com.github.cwramirezg.micredito.home.presentation.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
-import com.github.cwramirezg.micredito.core.data.network.NetworkResult
+import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.core.presentation.base.BaseViewModel
 import com.github.cwramirezg.micredito.core.presentation.states.UiState
 import com.github.cwramirezg.micredito.home.domain.entities.toConfirmacionSuccess
@@ -31,18 +31,18 @@ class ConfirmacionViewModel @Inject constructor(
             _confirmacionUiState.value = UiState.Loading
             obtenerSolicitudUseCase(confirmacion.solicitudId).collect { result ->
                 when (result) {
-                    is NetworkResult.Success -> {
+                    is RepositoryResult.Success -> {
                         val confirmacion = result.data
                         _confirmacionUiState.value = UiState.Success(
                             data = confirmacion.toConfirmacionSuccess()
                         )
                     }
 
-                    is NetworkResult.Error -> {
+                    is RepositoryResult.Error -> {
                         _confirmacionUiState.value = UiState.Error(result.message)
                     }
 
-                    is NetworkResult.Loading -> {
+                    is RepositoryResult.Loading -> {
                         _confirmacionUiState.value = UiState.Loading
                     }
                 }

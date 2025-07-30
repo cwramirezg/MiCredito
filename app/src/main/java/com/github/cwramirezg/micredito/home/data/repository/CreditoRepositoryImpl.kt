@@ -1,6 +1,7 @@
 package com.github.cwramirezg.micredito.home.data.repository
 
 import com.github.cwramirezg.micredito.core.data.network.NetworkResult
+import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.home.data.local.datasource.CreditoLocalDataSource
 import com.github.cwramirezg.micredito.home.data.local.entities.SimulacionEntity
 import com.github.cwramirezg.micredito.home.data.local.entities.SolicitudPendienteEntity
@@ -27,15 +28,15 @@ class CreditoRepositoryImpl @Inject constructor(
     private val localDataSource: CreditoLocalDataSource
 ) : CreditoRepository {
 
-    override fun obtenerLineaCredito(clienteId: String): Flow<NetworkResult<List<LineaCredito>>> =
+    override fun obtenerLineaCredito(clienteId: String): Flow<RepositoryResult<List<LineaCredito>>> =
         flow {
             Timber.d("=== Iniciando obtención de línea de crédito ===")
-            emit(NetworkResult.Loading())
+            emit(RepositoryResult.Loading())
             try {
                 val localData = localDataSource.obtenerLineaCreditoLocal(clienteId)
-                if (localData is NetworkResult.Success) {
+                if (localData is RepositoryResult.Success) {
                     Timber.d("Datos encontrados en cache local")
-                    emit(NetworkResult.Success(localData.data.map {
+                    emit(RepositoryResult.Success(localData.data.map {
                         LineaCreditoMapper.fromEntityToDomain(
                             it
                         )
@@ -47,7 +48,7 @@ class CreditoRepositoryImpl @Inject constructor(
                 val remoteData = remoteDataSource.obtenerLineaCredito(clienteId)
 
                 when (remoteData) {
-                    is NetworkResult.Success -> {
+                    is RepositoryResult.Success -> {
                         Timber.d("Datos obtenidos exitosamente de la red")
                         val lineaCreditos =
                             remoteData.data.map { LineaCreditoMapper.fromDtoToDomain(it) }
@@ -56,45 +57,45 @@ class CreditoRepositoryImpl @Inject constructor(
                             remoteData.data.map { LineaCreditoMapper.fromDtoToEntity(it) }
                         localDataSource.guardarLineaCredito(lineaCreditoEntity)
 
-                        emit(NetworkResult.Success(lineaCreditos))
+                        emit(RepositoryResult.Success(lineaCreditos))
                     }
 
-                    is NetworkResult.Error -> {
+                    is RepositoryResult.Error -> {
                         Timber.d("Error de red: ${remoteData.message}")
-                        if (localData !is NetworkResult.Success) {
-                            emit(NetworkResult.Error("No hay conexión y no se encontraron datos locales"))
+                        if (localData !is RepositoryResult.Success) {
+                            emit(RepositoryResult.Error("No hay conexión y no se encontraron datos locales"))
                         }
                     }
 
-                    is NetworkResult.Loading -> {
+                    is RepositoryResult.Loading -> {
                         // No emitir loading adicional
                     }
                 }
             } catch (e: Exception) {
                 Timber.e("Exception en obtenerLineaCredito: ${e.message}")
-                emit(NetworkResult.Error("Error inesperado: ${e.message}"))
+                emit(RepositoryResult.Error("Error inesperado: ${e.message}"))
             }
         }
 
-    override suspend fun obtenerDatosCliente(clienteId: String): Flow<NetworkResult<Cliente>> {
+    override suspend fun obtenerDatosCliente(clienteId: String): Flow<RepositoryResult<Cliente>> {
         return remoteDataSource.obtenerCliente(clienteId).map { result ->
             when (result) {
-                is NetworkResult.Success -> NetworkResult.Success(
+                is RepositoryResult.Success -> RepositoryResult.Success(
                     ClienteMapper.fromDtoToDomain(
                         result.data
                     )
                 )
 
-                is NetworkResult.Error -> NetworkResult.Error(result.message ?: "Unknown error")
-                is NetworkResult.Loading -> NetworkResult.Loading()
+                is RepositoryResult.Error -> RepositoryResult.Error(result.message ?: "Unknown error")
+                is RepositoryResult.Loading -> RepositoryResult.Loading()
             }
         }
     }
 
     override suspend fun enviarSolicitudCredito(
         solicitud: SolicitudCreditoRequest
-    ): Flow<NetworkResult<SolicitudCredito>> = flow {
-        emit(NetworkResult.Loading())
+    ): Flow<RepositoryResult<SolicitudCredito>> = flow {
+        emit(RepositoryResult.Loading())
 
         val solicitudDto = SolicitudCreditoRequestDto(
             clienteId = solicitud.clienteId,
@@ -105,12 +106,12 @@ class CreditoRepositoryImpl @Inject constructor(
 
         remoteDataSource.enviarSolicitudCredito(solicitudDto).collect { result ->
             when (result) {
-                is NetworkResult.Success -> {
+                is RepositoryResult.Success -> {
                     val solicitudCredito = SolicitudMapper.fromDtoToDomain(result.data)
-                    emit(NetworkResult.Success(solicitudCredito))
+                    emit(RepositoryResult.Success(solicitudCredito))
                 }
 
-                is NetworkResult.Error -> {
+                is RepositoryResult.Error -> {
                     val solicitudPendiente = SolicitudPendienteEntity(
                         clienteId = solicitud.clienteId,
                         lineaCreditoId = solicitud.lineaCreditoId,
@@ -119,49 +120,49 @@ class CreditoRepositoryImpl @Inject constructor(
                     )
                     localDataSource.guardarSolicitudPendiente(solicitudPendiente)
                     emit(
-                        value = NetworkResult.Error(
+                        value = RepositoryResult.Error(
                             message = "Sin conexión. La solicitud se enviará automáticamente cuando haya internet.",
                             data = solicitudPendiente.id
                         )
                     )
                 }
 
-                is NetworkResult.Loading -> emit(NetworkResult.Loading())
+                is RepositoryResult.Loading -> emit(RepositoryResult.Loading())
             }
         }
     }
 
-    override suspend fun obtenerSolicitudCredito(solicitudId: String): Flow<NetworkResult<Confirmacion>> =
+    override suspend fun obtenerSolicitudCredito(solicitudId: String): Flow<RepositoryResult<Confirmacion>> =
         flow {
-            emit(NetworkResult.Loading())
+            emit(RepositoryResult.Loading())
             try {
                 val solicitudEntity = localDataSource.obtenerSolicitudPendiente(solicitudId)
                 val confirmacion = SolicitudMapper.fromEntityToDomain(solicitudEntity)
-                emit(NetworkResult.Success(confirmacion))
+                emit(RepositoryResult.Success(confirmacion))
             } catch (e: Exception) {
-                emit(NetworkResult.Error("Error al obtener solicitud: ${e.message}"))
+                emit(RepositoryResult.Error("Error al obtener solicitud: ${e.message}"))
             }
         }
 
     override suspend fun obtenerHistorialSolicitudes(
         clienteId: String
-    ): Flow<NetworkResult<List<SolicitudCredito>>> {
+    ): Flow<RepositoryResult<List<SolicitudCredito>>> {
         return remoteDataSource.obtenerHistorialSolicitudes(clienteId).map { result ->
             when (result) {
-                is NetworkResult.Success -> {
+                is RepositoryResult.Success -> {
                     val solicitudes = result.data.map { SolicitudMapper.fromDtoToDomain(it) }
-                    NetworkResult.Success(solicitudes)
+                    RepositoryResult.Success(solicitudes)
                 }
 
-                is NetworkResult.Error -> NetworkResult.Error(result.message ?: "Unknown error")
-                is NetworkResult.Loading -> NetworkResult.Loading()
+                is RepositoryResult.Error -> RepositoryResult.Error(result.message ?: "Unknown error")
+                is RepositoryResult.Loading -> RepositoryResult.Loading()
             }
         }
     }
 
     override suspend fun guardarSimulacionTemporal(
         simulacion: SimulacionCredito
-    ): Flow<NetworkResult<Unit>> = flow {
+    ): Flow<RepositoryResult<Unit>> = flow {
         try {
             val simulacionEntity = SimulacionEntity(
                 clienteId = "current_user", // Obtener del PreferencesManager
@@ -175,13 +176,13 @@ class CreditoRepositoryImpl @Inject constructor(
             )
 
             localDataSource.guardarSimulacion(simulacionEntity)
-            emit(NetworkResult.Success(Unit))
+            emit(RepositoryResult.Success(Unit))
         } catch (e: Exception) {
-            emit(NetworkResult.Error("Error al guardar simulación: ${e.message}"))
+            emit(RepositoryResult.Error("Error al guardar simulación: ${e.message}"))
         }
     }
 
-    override suspend fun obtenerSimulacionesGuardadas(): Flow<NetworkResult<List<SimulacionCredito>>> =
+    override suspend fun obtenerSimulacionesGuardadas(): Flow<RepositoryResult<List<SimulacionCredito>>> =
         flow {
             try {
                 localDataSource.obtenerSimulacionesGuardadas("current_user").collect { entidades ->
@@ -196,16 +197,16 @@ class CreditoRepositoryImpl @Inject constructor(
                             fechaSimulacion = entity.fechaSimulacion
                         )
                     }
-                    emit(NetworkResult.Success(simulaciones))
+                    emit(RepositoryResult.Success(simulaciones))
                 }
             } catch (e: Exception) {
-                emit(NetworkResult.Error("Error al obtener simulaciones: ${e.message}"))
+                emit(RepositoryResult.Error("Error al obtener simulaciones: ${e.message}"))
             }
         }
 
-    override suspend fun reintentarSolicitudesPendientes(): Flow<NetworkResult<List<SolicitudCredito>>> =
+    override suspend fun reintentarSolicitudesPendientes(): Flow<RepositoryResult<List<SolicitudCredito>>> =
         flow {
-            emit(NetworkResult.Loading())
+            emit(RepositoryResult.Loading())
 
             try {
                 val solicitudesPendientes = localDataSource.obtenerSolicitudesPendientes()
@@ -223,27 +224,27 @@ class CreditoRepositoryImpl @Inject constructor(
 
                         remoteDataSource.enviarSolicitudCredito(solicitudDto).collect { result ->
                             when (result) {
-                                is NetworkResult.Success -> {
+                                is RepositoryResult.Success -> {
                                     val solicitudCredito =
                                         SolicitudMapper.fromDtoToDomain(result.data)
                                     solicitudesEnviadas.add(solicitudCredito)
                                     localDataSource.eliminarSolicitudPendiente(solicitudPendiente)
                                 }
 
-                                is NetworkResult.Error -> {
+                                is RepositoryResult.Error -> {
                                     localDataSource.actualizarIntentoSolicitud(solicitudPendiente)
                                 }
 
-                                is NetworkResult.Loading -> { /* Ignorar */
+                                is RepositoryResult.Loading -> { /* Ignorar */
                                 }
                             }
                         }
                     }
                 }
 
-                emit(NetworkResult.Success(solicitudesEnviadas))
+                emit(RepositoryResult.Success(solicitudesEnviadas))
             } catch (e: Exception) {
-                emit(NetworkResult.Error("Error al reintentar solicitudes: ${e.message}"))
+                emit(RepositoryResult.Error("Error al reintentar solicitudes: ${e.message}"))
             }
         }
 }
