@@ -88,4 +88,8 @@ class SplashViewModel @Inject constructor(
         _uiState.value = SplashUiState.Loading
         inicializarApp()
     }
+
+    override fun onError(message: String) {
+        _uiState.value = SplashUiState.Error(message)
+    }
 }

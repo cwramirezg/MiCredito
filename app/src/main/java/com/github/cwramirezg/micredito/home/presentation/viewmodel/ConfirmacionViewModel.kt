@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,6 +40,7 @@ class ConfirmacionViewModel @Inject constructor(
                     }
 
                     is RepositoryResult.Error -> {
+                        Timber.e("RepositoryResult.Error: ${result.message}")
                         _confirmacionUiState.value = UiState.Error(result.message)
                     }
 
@@ -48,5 +50,10 @@ class ConfirmacionViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun onError(message: String) {
+        Timber.d("onError: $message")
+        _confirmacionUiState.value = UiState.Error(message)
     }
 }

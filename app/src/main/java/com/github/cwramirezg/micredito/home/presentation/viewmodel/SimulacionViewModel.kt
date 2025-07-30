@@ -16,7 +16,7 @@ import com.github.cwramirezg.micredito.home.domain.usecase.SimularCreditoParams
 import com.github.cwramirezg.micredito.home.domain.usecase.SimularCreditoUseCase
 import com.github.cwramirezg.micredito.home.domain.usecase.ValidarSolicitudUseCase
 import com.github.cwramirezg.micredito.home.presentation.pojos.SimulacionSuccess
-import com.github.cwramirezg.micredito.home.presentation.states.SolicitudUiState
+import com.github.cwramirezg.micredito.home.presentation.pojos.SolicitudSuccess
 import com.github.cwramirezg.micredito.navigation.NavigationDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,8 +41,8 @@ class SimulacionViewModel @Inject constructor(
     private val _simulacionUiState = MutableStateFlow<UiState<SimulacionSuccess>>(UiState.Idle)
     val simulacionUiState: StateFlow<UiState<SimulacionSuccess>> = _simulacionUiState.asStateFlow()
 
-    private val _solicitudUiState = MutableStateFlow<SolicitudUiState>(SolicitudUiState.Idle)
-    val solicitudUiState: StateFlow<SolicitudUiState> = _solicitudUiState.asStateFlow()
+    private val _solicitudUiState = MutableStateFlow<UiState<SolicitudSuccess>>(UiState.Idle)
+    val solicitudUiState: StateFlow<UiState<SolicitudSuccess>> = _solicitudUiState.asStateFlow()
 
     private val _montoSeleccionado = MutableStateFlow(0.0)
     val montoSeleccionado: StateFlow<Double> = _montoSeleccionado.asStateFlow()
@@ -158,7 +158,7 @@ class SimulacionViewModel @Inject constructor(
         val plazo = _plazoSeleccionado.value
 
         launchSafe {
-            _solicitudUiState.value = SolicitudUiState.Loading
+            _solicitudUiState.value = UiState.Loading
 
             val validacionParams = Pair(
                 SolicitudCreditoRequest(cliente.id, lineaCredito.id, monto, plazo),
@@ -173,12 +173,12 @@ class SimulacionViewModel @Inject constructor(
                             enviarSolicitudCredito(cliente.id, lineaCredito.id, monto, plazo)
                         } else {
                             val erroresTexto = validacion.errores.joinToString("\n")
-                            _solicitudUiState.value = SolicitudUiState.Error(erroresTexto)
+                            _solicitudUiState.value = UiState.Error(erroresTexto)
                         }
                     }
 
                     is RepositoryResult.Error -> {
-                        _solicitudUiState.value = SolicitudUiState.Error(validacionResult.message)
+                        _solicitudUiState.value = UiState.Error(validacionResult.message)
                     }
 
                     else -> { /* Loading */
@@ -199,15 +199,17 @@ class SimulacionViewModel @Inject constructor(
         enviarSolicitudUseCase(solicitud).collect { result ->
             when (result) {
                 is RepositoryResult.Success -> {
-                    _solicitudUiState.value = SolicitudUiState.Success(
-                        mensaje = "¡Solicitud enviada exitosamente! Te contactaremos pronto.",
-                        solicitudId = result.data.id
+                    _solicitudUiState.value = UiState.Success(
+                        SolicitudSuccess(
+                            mensaje = "¡Solicitud enviada exitosamente! Te contactaremos pronto.",
+                            solicitudId = result.data.id
+                        )
                     )
                 }
 
                 is RepositoryResult.Error -> {
                     val isOffline = result.message.contains("Sin conexión", ignoreCase = true)
-                    _solicitudUiState.value = SolicitudUiState.Error(
+                    _solicitudUiState.value = UiState.Error(
                         message = result.message,
                         isOffline = isOffline,
                         idSolicitud = result.data ?: ""
@@ -215,9 +217,13 @@ class SimulacionViewModel @Inject constructor(
                 }
 
                 is RepositoryResult.Loading -> {
-                    _solicitudUiState.value = SolicitudUiState.Loading
+                    _solicitudUiState.value = UiState.Loading
                 }
             }
         }
+    }
+
+    override fun onError(message: String) {
+        _simulacionUiState.value = UiState.Error(message)
     }
 }

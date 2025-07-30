@@ -1,6 +1,5 @@
 package com.github.cwramirezg.micredito.home.domain.usecase
 
-import com.github.cwramirezg.micredito.core.data.network.NetworkResult
 import com.github.cwramirezg.micredito.core.data.repository.RepositoryResult
 import com.github.cwramirezg.micredito.core.domain.usecase.BaseUseCase
 import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito

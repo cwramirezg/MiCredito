@@ -24,8 +24,6 @@ sealed class NavigationDestination {
     @Serializable
     object Onboarding : NavigationDestination()
 
-    @Serializable
-    data class Error(val errorType: String) : NavigationDestination()
 }
 
 @Serializable

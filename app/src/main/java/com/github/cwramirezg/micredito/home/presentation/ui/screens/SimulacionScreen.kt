@@ -18,9 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.cwramirezg.micredito.core.presentation.base.BaseScreenWithAppBar
+import com.github.cwramirezg.micredito.core.presentation.states.UiState
 import com.github.cwramirezg.micredito.home.domain.entities.LineaCredito
 import com.github.cwramirezg.micredito.home.presentation.pojos.SimulacionSuccess
-import com.github.cwramirezg.micredito.home.presentation.states.SolicitudUiState
+import com.github.cwramirezg.micredito.home.presentation.pojos.SolicitudSuccess
 import com.github.cwramirezg.micredito.home.presentation.ui.components.LoadingButton
 import com.github.cwramirezg.micredito.home.presentation.ui.components.ResumenCreditoCard
 import com.github.cwramirezg.micredito.home.presentation.ui.components.SimuladorCard
@@ -47,10 +48,10 @@ fun SimulacionScreen(
             onSolicitarCredito = {
                 Timber.d("Solicitando crédito: $solicitudUiState")
                 when (solicitudUiState) {
-                    is SolicitudUiState.Error -> {
+                    is UiState.Error -> {
                         Timber.d("Solicitando crédito error")
-                        if ((solicitudUiState as SolicitudUiState.Error).isOffline) {
-                            onNavigateToConfirmacion((solicitudUiState as SolicitudUiState.Error).idSolicitud)
+                        if ((solicitudUiState as UiState.Error).isOffline) {
+                            onNavigateToConfirmacion((solicitudUiState as UiState.Error).idSolicitud)
                         }
                     }
 
@@ -74,7 +75,7 @@ private fun SimulacionContent(
     state: SimulacionSuccess,
     lineaCredito: LineaCredito,
     onSolicitarCredito: () -> Unit,
-    solicitudUiState: SolicitudUiState,
+    solicitudUiState: UiState<SolicitudSuccess>,
     montoSeleccionado: Double,
     plazoSeleccionado: Int,
     onMontoChange: (Double) -> Unit,
@@ -100,19 +101,19 @@ private fun SimulacionContent(
             interesTotal = state.interesTotal,
             montoTotal = state.montoTotal
         )
-        val habilitado = solicitudUiState !is SolicitudUiState.Loading
+        val habilitado = solicitudUiState !is UiState.Loading
         LoadingButton(
             onClick = onSolicitarCredito,
             enabled = habilitado,
-            loading = solicitudUiState is SolicitudUiState.Loading,
+            loading = solicitudUiState is UiState.Loading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
         ) {
             Text(
                 text = when (solicitudUiState) {
-                    is SolicitudUiState.Loading -> "Enviando..."
-                    is SolicitudUiState.Error -> {
+                    is UiState.Loading -> "Enviando..."
+                    is UiState.Error -> {
                         if (solicitudUiState.isOffline) "Guardar offline" else "Solicitar crédito"
                     }
 
@@ -122,7 +123,7 @@ private fun SimulacionContent(
             )
         }
         // Mensaje de error de solicitud
-        if (solicitudUiState is SolicitudUiState.Error) {
+        if (solicitudUiState is UiState.Error) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(

@@ -6,14 +6,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.cwramirezg.micredito.core.presentation.base.BaseScreenWithAppBar
-import com.github.cwramirezg.micredito.core.presentation.states.UiState
-import com.github.cwramirezg.micredito.home.presentation.states.CreditoUiState
+import com.github.cwramirezg.micredito.home.presentation.pojos.CreditoSuccess
 import com.github.cwramirezg.micredito.home.presentation.ui.components.ClienteCard
 import com.github.cwramirezg.micredito.home.presentation.ui.components.LineaCreditoCard
 import com.github.cwramirezg.micredito.home.presentation.viewmodel.CreditoViewModel
@@ -24,20 +24,19 @@ fun CreditoHomeScreen(
     onNavigateToHistory: () -> Unit = {},
     onNavigateToSimulacion: (String) -> Unit = {}
 ) {
-    val creditoUiState by viewModel.creditoUiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.creditoUiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarDatosCredito()
+    }
 
     BaseScreenWithAppBar(
-        uiState = when (creditoUiState) {
-            is CreditoUiState.Idle -> UiState.Idle
-            is CreditoUiState.Loading -> UiState.Loading
-            is CreditoUiState.Success -> UiState.Success(creditoUiState)
-            is CreditoUiState.Error -> UiState.Error((creditoUiState as CreditoUiState.Error).message)
-        },
+        uiState = uiState,
         title = "Mis lineas de crédito",
         onRetry = viewModel::reintentar
-    ) { creditoState ->
+    ) { success ->
         CreditoContent(
-            creditoState = creditoState as CreditoUiState.Success,
+            creditoSuccess = success,
             onNavigateToHistory = onNavigateToHistory,
             onNavigateToSimulacion = onNavigateToSimulacion
         )
@@ -46,7 +45,7 @@ fun CreditoHomeScreen(
 
 @Composable
 private fun CreditoContent(
-    creditoState: CreditoUiState.Success,
+    creditoSuccess: CreditoSuccess,
     onNavigateToHistory: () -> Unit = {},
     onNavigateToSimulacion: (String) -> Unit
 ) {
@@ -55,13 +54,15 @@ private fun CreditoContent(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        item {
-            ClienteCard(
-                cliente = creditoState.cliente,
-                onHistoryClick = onNavigateToHistory
-            )
+        creditoSuccess.cliente?.let {
+            item {
+                ClienteCard(
+                    cliente = it,
+                    onHistoryClick = onNavigateToHistory
+                )
+            }
         }
-        items(creditoState.lineaCreditos) { linea ->
+        items(creditoSuccess.lineaCreditos) { linea ->
             LineaCreditoCard(
                 lineaCredito = linea,
                 onClick = onNavigateToSimulacion
